@@ -10,7 +10,7 @@
 The Chaser Cart’s translational and rotational dynamics are modeled using a state-space representation.
 
 #### State-Space Representation
-- **State Vector**:
+**State Vector**:
 
 $$
 x(t) = [x, y, \theta, \dot{x}, \dot{y}, \dot{\theta}]^T
@@ -22,17 +22,17 @@ Where:
 - $$\dot{x} , \dot{y}$$: Linear velocities.
 - $$\dot{\theta}$$: Angular velocity.
 
-- **Input Vector**:
+**Input Vector**:
 
 $$
 u(t) = [F_x, F_y, \tau]^T
 $$
 
 Where:
-- \( F_x \), \( F_y \): Control forces.
-- \( \tau \): Control torque.
+- $$F_x, F_y$$: Control forces.
+- $$\tau$$: Control torque.
 
-- **State-Space Matrices**:
+**State-Space Matrices**:
 
 $$
 \dot{x}(t) = A x(t) + B u(t)
@@ -42,7 +42,7 @@ $$
 y(t) = C x(t) + D u(t)
 $$
 
-The matrices \( A \), \( B \), \( C \), and \( D \) are:
+The matrices $$A, B, C, D$$ are:
 
 $$
 A = \begin{bmatrix}
