@@ -17,10 +17,10 @@ x(t) = [x, y, \theta, \dot{x}, \dot{y}, \dot{\theta}]^T
 $$
 
 Where:
-- \( x, y \): Position coordinates of the Chaser.
-- \( \theta \): Orientation (radians).
-- \( \dot{x}, \dot{y} \): Linear velocities.
-- \( \dot{\theta} \): Angular velocity.
+- x, y: Position coordinates of the Chaser.
+- $$\theta$$: Orientation (radians).
+- $$\dot{x} , \dot{y}$$: Linear velocities.
+- $$\dot{\theta}$$: Angular velocity.
 
 - **Input Vector**:
 
@@ -29,7 +29,7 @@ u(t) = [F_x, F_y, \tau]^T
 $$
 
 Where:
-- \( F_x, F_y \): Control forces.
+- \( F_x \), \( F_y \): Control forces.
 - \( \tau \): Control torque.
 
 - **State-Space Matrices**:
