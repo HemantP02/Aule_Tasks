@@ -1,110 +1,120 @@
 # Chaser Cart Docking Control and Path Planning
 
+## Project Overview
+
+This project focuses on designing and implementing a control and path-planning system for a Chaser Cart to dock with a Target Cart on a planar surface. The system is simulated using MATLAB and Simulink, with the goal of achieving smooth docking through efficient control algorithms and optimized path planning.
+
 ## Table of Contents
+
 1. [System Modeling](#system-modeling)
 2. [Control Algorithm](#control-algorithm)
+3. [Path Planning](#path-planning)
+4. [Visualization](#visualization)
+5. [Technical Insights](#technical-insights)
+6. [Edge-Case Analysis](#edge-case-analysis)
+7. [References](#references)
 
----
+## System Modeling
 
-### System Modeling
-The Chaser Cart’s translational and rotational dynamics are modeled using a state-space representation.
+### State-Space Representation
 
-#### State-Space Representation
-**State Vector**:
+The Chaser Cart's translational and rotational dynamics are modeled using a state-space approach. The state vector includes position, velocity, and orientation states, with corresponding input forces and torques. 
 
-$$
-x(t) = [x, y, \theta, \dot{x}, \dot{y}, \dot{\theta}]^T
-$$
+State vector:  
+`x(t) = [x, y, θ, x˙, y˙, θ˙]ᵀ`  
+Input vector:  
+`u(t) = [Fx, Fy, τ]ᵀ`  
+Output vector:  
+`y(t) = x(t)`  
 
-Where:
-- x, y: Position coordinates of the Chaser.
-- $$\theta$$: Orientation (radians).
-- $$\dot{x} , \dot{y}$$: Linear velocities.
-- $$\dot{\theta}$$: Angular velocity.
+The state-space equations are represented as:  
+`x˙(t) = Ax(t) + Bu(t)`  
+`y(t) = Cx(t) + Du(t)`
 
-**Input Vector**:
+### Assumptions and Parameters
 
-$$
-u(t) = [F_x, F_y, \tau]^T
-$$
+- Mass of Chaser (m): 1 kg
+- Moment of Inertia (I): 0.1 kg·m²
+- Thruster Force Limits: ±0.5 N
+- Gas Consumption Rate: 0.05 g/s per thruster
+- Initial Conditions: Randomized using Monte Carlo simulation
 
-Where:
-- $$F_x, F_y$$: Control forces.
-- $$\tau$$: Control torque.
+## Control Algorithm
 
-**State-Space Matrices**:
+### PID Controller Design
 
-$$
-\dot{x}(t) = A x(t) + B u(t)
-$$
+A PID (Proportional-Integral-Derivative) controller is implemented to control translational motion in the x and y directions, and rotational motion for orientation.
 
-$$
-y(t) = C x(t) + D u(t)
-$$
+Control laws for each degree of freedom are as follows:
 
-The matrices $$A, B, C, D$$ are:
+`Fx(t) = Kpx * ex(t) + Kix * ∫₀ᵗ ex(τ)dτ + Kdx * d/dt ex(t)`  
+`Fy(t) = Kpy * ey(t) + Kiy * ∫₀ᵗ ey(τ)dτ + Kdy * d/dt ey(t)`  
+`τ(t) = Kθ * eθ(t) + Kiθ * ∫₀ᵗ eθ(τ)dτ + Kdθ * d/dt eθ(t)`
 
-$$
-A = \begin{bmatrix}
-0 & 0 & 0 & 1 & 0 & 0 \\
-0 & 0 & 0 & 0 & 1 & 0 \\
-0 & 0 & 0 & 0 & 0 & 1 \\
-0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 & 0
-\end{bmatrix}
-$$
+### Tuning Gains
 
-$$
-B = \begin{bmatrix}
-0 & 0 & 0 \\
-0 & 0 & 0 \\
-0 & 0 & 0 \\
-\frac{1}{m} & 0 & 0 \\
-0 & \frac{1}{m} & 0 \\
-0 & 0 & \frac{1}{I}
-\end{bmatrix}
-$$
+Methods used for tuning the controller:
 
-Where \( m = 1 \) kg (Chaser mass) and \( I = 0.1 \) kg·m² (moment of inertia).
+- Manual tuning
+- Ziegler-Nichols method
 
-#### Assumptions
-- **Thruster force limits**: ±0.5 N
-- **Gas consumption rate**: 0.05 g/s per thruster
-- **Initial conditions**: Monte Carlo simulations with random positions and orientation
+### Control Implementation
 
----
+The controller is implemented using MATLAB and Simulink for real-time control, with integral and derivative terms managed using persistent variables and time steps.
 
-### Control Algorithm
-A PID controller is implemented to control position and orientation.
+## Path Planning
 
-#### PID Control Law
+### Trajectory Generation
 
-$$
-F_x(t) = K_{p_x} e_x(t) + K_{i_x} \int e_x(\tau) d\tau + K_{d_x} \frac{de_x(t)}{dt}
-$$
+The goal is to generate an optimal path for the Chaser Cart to move from a random initial position to the target position at (0,0,0). The trajectory is planned in both position and velocity space.
 
-$$
-F_y(t) = K_{p_y} e_y(t) + K_{i_y} \int e_y(\tau) d\tau + K_{d_y} \frac{de_y(t)}{dt}
-$$
+### Path Planning Algorithm
 
-$$
-\tau(t) = K_{\theta} e_{\theta}(t) + K_{i_\theta} \int e_{\theta}(\tau) d\tau + K_{d_\theta} \frac{de_{\theta}(t)}{dt}
-$$
+A polynomial trajectory planning approach is used, where the trajectory is expressed as a cubic polynomial for the position components:
 
-Where \( e_x(t) \), \( e_y(t) \), and \( e_\theta(t) \) are errors between the target and current states.
+`x(t) = a₀ + a₁t + a₂t² + a₃t³`  
+`y(t) = b₀ + b₁t + b₂t² + b₃t³`
 
-#### Tuning Parameters
-| Parameter | \( K_p \) | \( K_i \) | \( K_d \) |
-|-----------|-----------|-----------|-----------|
-| \( F_x \) | 0.5       | 0.1       | 0.05      |
-| \( F_y \) | 0.5       | 0.1       | 0.05      |
-| \( \tau \) | 1.0      | 0.2       | 0.1       |
+### Trajectory Calculation
 
----
+Coefficients are solved based on boundary conditions, and velocity and acceleration profiles are computed for smooth motion.
 
-### Next Steps
-1. Path Planning
-2. Visualization
-3. Technical Insights
-4. Edge-Case Analysis
+## Visualization
+
+### Docking Animation
+
+The docking process is animated to visualize the Chaser Cart's motion and thruster activations. The following components are animated:
+
+- Chaser Position: The (x, y) coordinates over time.
+- Orientation: A quiver plot shows the current orientation.
+- Thruster Activation: Color-coded indicators for thruster firing.
+
+### Implementation Details
+
+MATLAB animations use trajectory data and control inputs from Simulink to generate the animation.
+
+## Technical Insights
+
+### Actuator and Sensor Hardware
+
+The system uses linear and rotational thrusters for motion and torque. Sensors include position sensors, gyroscopes, and velocity sensors.
+
+### State Estimation Strategy
+
+State estimation is achieved using a Kalman filter or complementary filter, depending on the noise characteristics of the system.
+
+### Practical Challenges
+
+Challenges include limited actuator thrust, which is addressed by using a saturation block in the control design.
+
+## Edge-Case Analysis
+
+This section discusses edge cases such as actuator limitations, noisy sensor data, and extreme environmental conditions, with solutions and mitigations provided.
+
+## References
+
+- [Insert relevant references here]
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
