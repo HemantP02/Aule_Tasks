@@ -111,10 +111,6 @@ Challenges include limited actuator thrust, which is addressed by using a satura
 
 This section discusses edge cases such as actuator limitations, noisy sensor data, and extreme environmental conditions, with solutions and mitigations provided.
 
-## References
-
-- [Insert relevant references here]
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
